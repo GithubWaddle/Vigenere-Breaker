@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vigenère-Breaker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="main-content">
+        <h1>Vigenère-Breaker</h1>
+		<p>Get, input, and break Vigenère ciphertexts without knowing the key!</p>
+		<div id="breaker-input-output">
+			<div id="input">
+				<form action="/" method="POST">
+				    <label for="ciphertext">Enter Ciphertext:</label>
+				    <textarea id="ciphertext" name="ciphertext" rows="6" placeholder="Paste your encrypted message here...!" required>{{ ciphertext|default('') }}</textarea>
+
+				    <button type="submit">Break Cipher</button>
+				</form>
+			</div>
+			<div id="output">
+				{% if plaintext %}
+				<d class="result">
+				    <h2>Decrypted Text:</h2>
+				    <p>{{ plaintext }}</p>
+				</div>
+				{% elif error %}
+				<div class="error">
+				    <p>{{ error }}</p>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+    </div>
+
+	<div class="pocket-encoder-decoder">
+		<h1>Pocket Vigenère Cipher Encoder-Decoder</h1>
+		<p></p>
+		<div id="pocket-encoder-decoder-input-output">
+		</div>
+	</div>
+</body>
+</html>
