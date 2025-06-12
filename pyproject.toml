@@ -1,0 +1,16 @@
+[project]
+name = "Vigenere-Breaker"
+version = "0.1"
+description = "A demonstration of breaking a vigenere cipher."
+authors = [
+    {name = "Muhammad Rafi Indra", email = "wafiwaffleuni@gmail.com"},
+    {name = "Muhammad Dwimas Paressa", email = "2310511121@mahasiswa.upnvj.ac.id"},
+    {name = "Faruq al-Akhyar", email = "2310511107@mahasiswa.upnvj.ac.id"}
+]
+dependencies = [
+    "flask",
+]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
