@@ -3,41 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <title>Vigenère-Breaker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="main-content">
-        <h1>Vigenère-Breaker</h1>
-		<p>Get, input, and break Vigenère ciphertexts without knowing the key!</p>
-		<div id="breaker-input-output">
-			<div id="input">
-				<form action="/" method="POST">
-				    <label for="ciphertext">Enter Ciphertext:</label>
-				    <textarea id="ciphertext" name="ciphertext" rows="6" placeholder="Paste your encrypted message here...!" required>{{ ciphertext|default('') }}</textarea>
-
-				    <button type="submit">Break Cipher</button>
-				</form>
+		<div id="main-content__left">
+			<div id="main-content__title">
+				<h1>Vigenère-Breaker!</h1>
 			</div>
-			<div id="output">
-				{% if plaintext %}
-				<d class="result">
-				    <h2>Decrypted Text:</h2>
-				    <p>{{ plaintext }}</p>
+			<div id="main-content__breaker">
+				<div id="main-content__breaker__ciphertext">
+					<p id="pocket-encoder-decoder-plaintext__title">Ciphertext<p>
+					<textarea id="breaker-ciphertext-text-area" placeholder="Ciphertext here..."></textarea>
 				</div>
-				{% elif error %}
-				<div class="error">
-				    <p>{{ error }}</p>
+				<div id="main-content__breaker__plaintext">
+					<p id="pocket-encoder-decoder-plaintext__title">Possible Plaintext<p>
+					<textarea id="breaker-plaintext-text-area" readonly placeholder="Plaintext here..."></textarea>
 				</div>
-				{% endif %}
+				<div id="main-content__breaker__execute">
+					<button id="breaker-execute-button" onclick="breakVigenere()">Break!</button>
+				</div>
+			</div>
+		</div>
+		<div id="main-content__right">
+			<div id="main-content__subtitle">
+				<p>Tries to break any vigenere cipher using brute-force, dictionary, and statistical attacks!<p>
+			</div>
+			<div id="information-bar">
+				<div id="copyright-tag">
+					<p>By Kelompok 11 Kriptografi<p>
+				</div>
+				<div id="more-information-button">
+					<button id="open-more-information-popup-button" onclick="openMoreInformationPopup()">More Information</b>
+				</div>
+			</div>
+			<div class="pocket-encoder-decoder">
+				<div id="pocket-encoder-decoder__content">
+					<p id="pocket-encoder-decoder__content__title">Pocket Vigenère Encoder-Decoder!<p>
+					<div id="pocket-encoder-decoder__inputs">
+						<div id="pocket-encoder-decoder-plaintext">
+							<p id="pocket-encoder-decoder-plaintext__title">Plaintext<p>
+							<textarea id="pocket-encoder-decoder-plaintext-text-area" placeholder="Plaintext here..."></textarea>
+						</div>
+						<div id="pocket-encoder-decoder-key">
+							<p id="pocket-encoder-decoder-key__title">Key<p>
+							<textarea id="pocket-encoder-decoder-key-text-area" placeholder="Key here..."></textarea>
+						</div>
+						<div id="pocket-encoder-decoder-ciphertext">
+							<p id="pocket-encoder-decoder-ciphertext__title">Ciphertext<p>
+							<textarea id="pocket-encoder-decoder-ciphertext-text-area" placeholder="Ciphertext here..."></textarea>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
     </div>
 
-	<div class="pocket-encoder-decoder">
-		<h1>Pocket Vigenère Cipher Encoder-Decoder</h1>
-		<p></p>
-		<div id="pocket-encoder-decoder-input-output">
+	<div id="more-information-popup">
+		<div id="more-information-popup-content">
+			<button id="close-more-information-popup-button" onclick="closeMoreInformationPopup()">X</button>
+			<p>
+Vigenère-Breaker by Kelompok 11 Kriptografi.<br>
+Kelompok 11 members:<br>
+* Muhammad Rafi Indra (2310511109)<br>
+* Muhammad Dwimas Paressa (2310511121)<br>
+* Faruq al-Akhyar (2310511107)<br>
+<br>
+Used resources below to figure out methods of breaking the Vigenere Cipher!
+			<p>
+			<a href="https://www.cipherchallenge.org/wp-content/uploads/2020/12/Five-ways-to-crack-a-Vigenere-cipher.pdf">
+* Five Ways to Crack a Vigenere Cipher by The Mad Doctor ("madness")</a>
+			<br>
+			<a href="https://inventwithpython.com/cracking/chapter20.html#">
+* Cracking Codes with Python: An Introduction to Building and Breaking Ciphers, Chapter 20: HACKING THE VIGENÈRE CIPHER by Al Sweigart</a>
 		</div>
 	</div>
+
+	<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

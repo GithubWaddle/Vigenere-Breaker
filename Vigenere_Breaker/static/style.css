@@ -1,51 +1,96 @@
+
 body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to right, #1e3c72, #2a5298);
-    color: #ffffff;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    padding: 40px 20px;
+  font-family: monospace;
+  margin: 5em;
 }
 
 .main-content {
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 30px;
-    border-radius: 12px;
-    max-width: 700px;
-    width: 100%;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: row;
+  gap: 5em;
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 25px;
-    font-size: 2rem;
+#main-content__left {
+  display: flex;
+  flex-direction: column;
+  flex: 3;
+  border-right: 1px solid black;
 }
 
-label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
+#main-content__title {
+  
 }
 
-textarea {
-    width: 100%;
-    padding: 12px;
-    border-radius: 6px;
-    border: none;
-    font-size: 1rem;
-    resize: vertical;
-    margin-bottom: 20px;
-    box-sizing: border-box;
+#main-content__breaker {
+  display: flex;
+  flex-direction: column;
 }
 
-button {
-    background-color: #00c9a7;
-    border: none;
-    padding: 12px 20px;
-    color: #fff;
-    font-size: 1rem;
+#main-content__breaker__plaintext,
+#main-content__breaker__ciphertext {
+  flex-grow: 1;
+}
+
+#breaker-ciphertext-text-area,
+#breaker-plaintext-text-area {
+  flex-grow: 1;
+  height: 10em;
+  width: 90%;
+}
+
+#main-content__right {
+  flex: 1
+}
+
+.pocket-encoder-decoder {
+  display: flex;
+  flex-direction: column;
+  border: 1px dotted black;
+  padding: 2em;
+  margin-top: 5em;
+}
+
+#pocket-encoder-decoder__inputs {
+  display: flex;
+  flex-direction: column;
+}
+
+#pocket-encoder-decoder-plaintext-text-area,
+#pocket-encoder-decoder-ciphertext-text-area {
+  flex-grow: 1;
+  height: 5em;
+  width: 90%;
+}
+
+#pocket-encoder-decoder-key-text-area {
+  width: 90%;
+}
+
+#more-information-button {
+  color: gray;
+}
+
+#more-information-popup {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+#more-information-popup-content {
+  background-color: #fff;
+  margin: 15% auto;
+  padding: 10em;
+  border-radius: 5px;
+  width: 50%;
+}
+
+#close-more-information-popup-button {
+  padding: 5px 10px;
+  float: right;
+  cursor: pointer;
 }
