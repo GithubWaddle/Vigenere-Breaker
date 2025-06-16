@@ -13,14 +13,21 @@
 			</div>
 			<div id="main-content__breaker">
 				<div id="main-content__breaker__ciphertext">
-					<p id="pocket-encoder-decoder-plaintext__title">Ciphertext<p>
+					<p id="breaker-plaintext__title">Ciphertext<p>
 					<textarea id="breaker-ciphertext-text-area" placeholder="Ciphertext here..."></textarea>
 				</div>
 				<div id="main-content__breaker__plaintext">
-					<p id="pocket-encoder-decoder-plaintext__title">Possible Plaintext<p>
+					<p id="breaker-plaintext__title">Possible Plaintext<p>
 					<textarea id="breaker-plaintext-text-area" readonly placeholder="Plaintext here..."></textarea>
 				</div>
-				<div id="main-content__breaker__execute">
+				<div id="main-content__breaker__key">
+					<p id="breaker-key__title">Possible Key<p>
+					<textarea id="breaker-key-text-area" readonly placeholder="Key here..."></textarea>
+				</div>
+				<form id="main-content__breaker__settings" style="margin-bottom: 2em;">
+					<label><input id="is-key-english" type="checkbox">Is Key an English Word?</label>
+				</form>
+				<div id="main-content__breaker__execute" >
 					<button id="breaker-execute-button" onclick="breakVigenere()">Break!</button>
 				</div>
 			</div>

@@ -53,20 +53,12 @@ function closeMoreInformationPopup() {
 
 function breakVigenere() {
   const data = {
-    ciphertext: document.getElementById("breaker-ciphertext-text-area").value
+    ciphertext: document.getElementById("breaker-ciphertext-text-area").value,
+	isKeyEnglishWord: document.getElementById("is-key-english").value
   };
-  fetch("/", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(data)
-  })
-  .then(response => response.json())
-  .then(result => {
-    console.log(result);
-  })
-  .catch(error => {
-    console.error('Error:', error);
-  });
+  if (isKeyEnglishWord == "on") {
+    startDictionaryAttack(ciphertext)
+  }
 }
 
 
@@ -109,3 +101,42 @@ function main() {
 }
 
 window.addEventListener('DOMContentLoaded', main);
+
+
+async function startDictionaryAttack(ciphertext) {
+  await fetch("/dictionary_attack/start", {
+    method: "POST",
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ciphertext})
+  });
+  attemptNextDictionaryAttack();
+}
+
+async function attemptNextDictionaryAttack() {
+  const response = await fetch("/dictionary_attack/next_attempt");
+  const data = await response.json();
+  if (data.done) {
+    //alert("No more keys in the dictionary.");
+    return;
+  }
+
+  const message = `Key: ${data.key}\nPlaintext:\n${data.plaintext}\n\nIs this correct?`;
+  const accepted = confirm(message);
+  const feedback = await fetch("/dictionary_attack/feedback", {
+    method: "POST",
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({accepted})
+   });
+
+   const result = await feedback.json();
+   if (!result.stop) { 
+     attemptNext();
+   } else {
+     //alert("Decryption successful with key: " + data.key);
+     const breakerPlaintextOutput = document.getElementById('breaker-plaintext-text-area');
+     const breakerKey = document.getElementById('breaker-key-text-area');
+     breakerPlaintextOutput.value = data.plaintext;
+     breakerKey.value = data.key;
+   }
+}
+

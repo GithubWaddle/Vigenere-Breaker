@@ -38,6 +38,11 @@ body {
   width: 90%;
 }
 
+#main-content__breaker__settings label {
+  display: inline-block;
+  margin-right: 10px;
+}
+
 #main-content__right {
   flex: 1
 }
