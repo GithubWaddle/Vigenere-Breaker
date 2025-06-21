@@ -1,69 +1,67 @@
-import string
-from sys import maxsize
-from typing import List, Dict
-from .frequency_analysis import get_letter_counts
+from collections import Counter
+from typing import Union
 
-EN_IC = 0.67
-
-import re
-
-def get_capital_letters(text):
-	return re.sub(r'[^A-Z]', '', text)
+DEFAULT_MAXIMUM_KEY_LENGTH = 20
+ENGLISH_LANGUAGE_INDEX_OF_COINCIDENCE = 0.067
 
 
-def calculate_index_of_coincidence(letter_frequencies: Dict[str, int]) -> float:
-	numerator: int = sum([
-		letter_frequencies[letter] * (letter_frequencies[letter] - 1)
-		for letter in string.ascii_uppercase
-	])
-	total_letters: int = sum(letter_frequencies.values())
-	denominator: int = total_letters * (total_letters - 1)
-	return numerator / denominator if denominator != 0 else 0
+def clean_text_only_letters_uppercase(text: str) -> str:
+    return ''.join([character.upper() for character in text if character.isalpha()])
 
 
-def get_keyed_groups(text, key_size):
-	groups = [text[i:i+key_size] for i in range(0, len(text)-key_size, key_size)]
-	return groups
+def calculate_index_of_coincidence(text: Union[str, bytes]) -> float:
+    if isinstance(text, bytes):
+        text = text.decode('utf-8')
+
+    cleaned_text = clean_text_only_letters_uppercase(text)
+    
+    #print(cleaned_text)
+    if len(cleaned_text) <= 1:
+        return 0.0
+
+    letter_frequencies = Counter(cleaned_text)
+    total_characters = len(cleaned_text)
+
+    total_possible_pairs = total_characters * (total_characters - 1)
+    print([frequency * (frequency - 1) for frequency in letter_frequencies.values()])
+    
+    matching_character_pairs = sum(
+        [frequency * (frequency - 1) for frequency in letter_frequencies.values()]
+    )
+    
+    #print(matching_character_pairs)
+    #print(total_possible_pairs)
+    return matching_character_pairs / total_possible_pairs if total_possible_pairs > 0 else 0.0
 
 
-def get_columns(text_groups):
-	group_size = len(text_groups[0])
-	columns = []
-	for letter_count in range(group_size):
-		column = ''
-		for group_count in range(len(text_groups)):
-			column += text_groups[group_count][letter_count]
-		columns.append(column)
-	return columns
+def divide_ciphertext_into_groups(ciphertext: str, key_length: int) -> list[str]:
+    groups = ['' for _ in range(key_length)]
+    for index, character in enumerate(ciphertext):
+        group_index = index % key_length
+        groups[group_index] += character
+    return groups
 
 
-def find_likely_key_length(ciphertext: str, maximum_key_length: int) -> int:
-	if maximum_key_length == 0:
-		maximum_key_length = len(ciphertext)
-	
-	cleaned_ciphertext = get_capital_letters(ciphertext)
-	minimum_difference_from_english_ic: float = maxsize
-	most_likely_key_length: int = 0
+def find_most_likely_vigenere_key_length(ciphertext: str, maximum_key_length: int = DEFAULT_MAXIMUM_KEY_LENGTH) -> int:
+    cleaned_ciphertext = clean_text_only_letters_uppercase(ciphertext)
 
-	for candidate_key_length in range(1, maximum_key_length + 1):
-		keyed_groups: List[str] = get_keyed_groups(cleaned_ciphertext, candidate_key_length)
-		transposed_columns: List[str] = get_columns(keyed_groups)
+    most_likely_key_length = 0
+    smallest_index_difference = float('inf')
 
-		column_index_of_coincidences: List[float] = [
-			calculate_index_of_coincidence(
-				get_letter_counts(column)
-			)
-			for column in transposed_columns
-		]
+    for candidate_key_length in range(1, maximum_key_length + 1):
+        caesar_shifted_groups = divide_ciphertext_into_groups(cleaned_ciphertext, candidate_key_length)
+        group_indexes_of_coincidence = [
+            calculate_index_of_coincidence(group) for group in caesar_shifted_groups
+        ]
+        print(group_indexes_of_coincidence)
+        average_index_of_coincidence = sum(group_indexes_of_coincidence) / len(group_indexes_of_coincidence)
 
-		average_index_of_coincidence: float = sum(column_index_of_coincidences) / len(column_index_of_coincidences)
-		difference_from_expected_index_of_coincidence: float = abs(EN_IC - average_index_of_coincidence)
+        difference_from_english_ic = abs(
+            ENGLISH_LANGUAGE_INDEX_OF_COINCIDENCE - average_index_of_coincidence
+        )
 
-		if not difference_from_expected_index_of_coincidence < minimum_difference_from_english_ic:
-			continue
+        if difference_from_english_ic < smallest_index_difference:
+            smallest_index_difference = difference_from_english_ic
+            most_likely_key_length = candidate_key_length
 
-		minimum_difference_from_english_ic = difference_from_expected_index_of_coincidence
-		most_likely_key_length = candidate_key_length
-
-	return most_likely_key_length
-
+    return most_likely_key_length
