@@ -2,7 +2,7 @@
 
 from flask import current_app
 from .vigenere_cipher import vigenere_encrypt, vigenere_decrypt
-from .index_of_coincidence import find_likely_key_length
+from .index_of_coincidence import find_most_likely_vigenere_key_length
 import re
 import itertools
 import string
@@ -51,7 +51,7 @@ def vigenere_start_breaking(ciphertext: str, is_key_english_word: bool) -> None:
 		break_cipher_dictionary_attack(ciphertext)
 		return
 
-	key_length = find_likely_key_length(ciphertext)
+	key_length = find_most_likely_vigenere_key_length(ciphertext)
 	if key_length < 5:
 		break_cipher_brute_force_attack(ciphertext, key_length)
 		return
