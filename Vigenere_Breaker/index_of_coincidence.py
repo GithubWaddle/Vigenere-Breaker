@@ -1,6 +1,6 @@
 from collections import Counter
 from typing import Union
-from vigenere_cipher import clean_text
+from .vigenere_cipher import clean_text
 
 DEFAULT_MAXIMUM_KEY_LENGTH = 20
 ENGLISH_LANGUAGE_INDEX_OF_COINCIDENCE = 0.067
@@ -23,12 +23,14 @@ def calculate_index_of_coincidence(text: Union[str, bytes]) -> float:
 
     return matching_character_pairs / total_possible_pairs if total_possible_pairs > 0 else 0.0
 
+
 def divide_ciphertext_into_groups(ciphertext: str, key_length: int) -> list[str]:
     groups = ['' for _ in range(key_length)]
     for index, character in enumerate(ciphertext):
         group_index = index % key_length
         groups[group_index] += character
     return groups
+
 
 def find_most_likely_vigenere_key_length(ciphertext: str, maximum_key_length: int = DEFAULT_MAXIMUM_KEY_LENGTH) -> int:
     cleaned_ciphertext = clean_text(ciphertext)
