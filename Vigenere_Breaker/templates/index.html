@@ -86,6 +86,25 @@ Used resources below to figure out methods of breaking the Vigenere Cipher!
 		</div>
 	</div>
 
+	<div id="possible-plaintext-prompt-popup">
+		<div id="possible-plaintext-prompt-popup-content">
+			<h1 id="possible-plaintext-prompt-popup-progress-bar">Breaking... (0/X)</h1>
+			<p>Possible Plaintext Prompt</p>
+			<p>We are trying to breaking the ciphertext now!</p>
+			<p>Ocassionally, you'll get a prompt for a possible plaintext (as legible words can popup in wrong plaintexts)</p>
+			<p>Decide if the given possible plaintext is right!</p>
+			<br>
+			<p>Possible Key</p>
+			<textarea id="possible-plaintext-prompt-popup-possible-key" readonly></textarea>
+			<p>Possible Plaintext</p>
+			<textarea id="possible-plaintext-prompt-popup-possible-plaintext" readonly></textarea>
+			<div id="possible-plaintext-prompt-popup-buttons">
+				<button id="possible-plaintext-prompt-popup-deny" disabled>Deny</button>
+				<button id="possible-plaintext-prompt-popup-confirm" disabled>Correct</button>
+			</div>
+		</div>
+	</div>
+
 	<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

@@ -99,3 +99,35 @@ body {
   float: right;
   cursor: pointer;
 }
+
+
+#possible-plaintext-prompt-popup {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+#possible-plaintext-prompt-popup-content {
+  background-color: #fff;
+  margin: 7% auto;
+  padding: 5em;
+  border-radius: 5px;
+  width: 50%;
+}
+
+#possible-plaintext-prompt-popup-possible-plaintext {
+  flex-grow: 1;
+  height: 10em;
+  width: 90%;
+}
+
+#possible-plaintext-prompt-popup-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10%;
+}
