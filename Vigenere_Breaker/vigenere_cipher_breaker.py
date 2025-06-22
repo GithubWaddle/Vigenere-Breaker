@@ -3,13 +3,16 @@
 from flask import current_app
 from .vigenere_cipher import vigenere_encrypt, vigenere_decrypt
 from .index_of_coincidence import find_most_likely_vigenere_key_length, divide_ciphertext_into_groups
+from .frequency_analysis import get_chi_squared_error_test
 import re
 import itertools
 import string
+import sys
 
 from langid.langid import LanguageIdentifier, model
 
 MAXIMUM_BRUTE_FORCE_KEY_LENGTH: int = 4
+MINIMUM_CIPHERTEXT_LENGTH_FOR_STATISTICAL_ATTACK: int = 50
 WORDS_FILE_PATH: str = "./static/WORDS.txt"
 
 breaking_tracking = {
@@ -79,7 +82,7 @@ def vigenere_start_breaking(ciphertext: str, is_key_english_word: bool) -> None:
 		break_cipher_dictionary_attack(ciphertext)
 		return
 
-	if len(ciphertext) < 25:
+	if len(ciphertext) < MINIMUM_CIPHERTEXT_LENGTH_FOR_STATISTICAL_ATTACK:
 		break_cipher_brute_force_attack(ciphertext)
 		return
 
@@ -135,5 +138,27 @@ def break_cipher_dictionary_attack(ciphertext: str) -> None:
 
 
 def break_cipher_statistical_attack(ciphertext: str, key_length: int) -> None:
-	caesar_shifted_groups = divide_ciphertext_into_groups(ciphertext, key_length)
-	
+	def caesar_encrypt(text: str, text_shift: int):
+		pass
+	caesar_shifted_groups: list[str] = divide_ciphertext_into_groups(ciphertext, key_length)
+	set_breaking_progress_percentage_numerator(0)
+	set_breaking_progress_percentage_denominator(1)
+
+	key_letter: list[str] = []
+
+	for caesar_group in caesar_shifted_groups:
+		possible_key: str = "A"
+		lowest_chi_squared_error_test_value: float = sys.float_info.max
+		for letter in string.ascii_uppercase:
+			chi_squared_error_test_value: float = get_chi_squared_error_test(ord(letter) - 65)
+			if not chi_squared_error_test_value < lowest_chi_squared_error_test_value:
+				continue
+			lowest_chi_squared_error_test_value = chi_squared_error_test_value
+			possible_key = letter
+		
+		key_letter.append(possible_key)
+
+
+	set_breaking_progress_percentage_numerator(1)
+	key = ''.join(key_letter)
+	append_to_possible_key_plaintexts(vigenere_decrypt(ciphertext, key), key)
