@@ -15,7 +15,7 @@ def index():
 def start_breaking():
 	data = request.get_json();
 	ciphertext = data.get("ciphertext")
-	isKeyEnglishWord = data.get("isKeyEnglishWord") == "on"
+	isKeyEnglishWord = data.get("isKeyEnglishWord")
 	vigenere_start_breaking(ciphertext, isKeyEnglishWord)
 	return jsonify({})
 
@@ -23,7 +23,6 @@ def start_breaking():
 @app.route("/breakingProgress", methods=["GET"])
 def get_breaking_progress():
 	global breaking_tracking
-	print(breaking_tracking)
 	return jsonify({
 		"progress": breaking_tracking["breaking_progress_percentage"],
 		"possibleKeyPlaintexts": breaking_tracking["possible_key_plaintexts"]

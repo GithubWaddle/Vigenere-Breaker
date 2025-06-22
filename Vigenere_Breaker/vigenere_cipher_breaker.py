@@ -1,7 +1,7 @@
 # breaking a vigenere cipher without knowing the key
 
 from flask import current_app
-from .vigenere_cipher import vigenere_encrypt, vigenere_decrypt
+from .vigenere_cipher import vigenere_encrypt, vigenere_decrypt, clean_text
 from .index_of_coincidence import find_most_likely_vigenere_key_length, divide_ciphertext_into_groups
 from .frequency_analysis import get_chi_squared_error_test
 import re
@@ -28,7 +28,7 @@ identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
 
 def set_breaking_progress_percentage_numerator(numerator: bool) -> None:
 	global breaking_tracking
-	breaking_tracking["breaking_progress_percentage"]["denominator"] = numerator
+	breaking_tracking["breaking_progress_percentage"]["numerator"] = numerator
 
 
 def set_breaking_progress_percentage_denominator(denominator: bool) -> None:
@@ -55,14 +55,14 @@ def set_is_breaking(is_breaking: bool)-> None:
 
 
 def normalize_uppercase_text(text):
-    text = text.lower()
+	text = text.lower()
 
-    def capitalize_sentence(match):
-        return match.group(1) + match.group(2).upper()
+	def capitalize_sentence(match):
+		return match.group(1) + match.group(2).upper()
 
-    normalized = re.sub(r'(^\s*|[.!?]\s+)([a-z])', capitalize_sentence, text)
+	normalized = re.sub(r'(^\s*|[.!?]\s+)([a-z])', capitalize_sentence, text)
 
-    return normalized
+	return normalized
 
 
 def is_probably_english(text):
@@ -79,14 +79,18 @@ def vigenere_start_breaking(ciphertext: str, is_key_english_word: bool) -> None:
 	set_breaking_progress_percentage_denominator(0)
 	
 	if is_key_english_word:
+		print("Dictionary Attack!")
 		break_cipher_dictionary_attack(ciphertext)
 		return
 
 	if len(ciphertext) < MINIMUM_CIPHERTEXT_LENGTH_FOR_STATISTICAL_ATTACK:
+		print("Brute-Force Attack!")
 		break_cipher_brute_force_attack(ciphertext)
 		return
 
-	key_length = find_most_likely_vigenere_key_length(ciphertext)
+	key_length = 4#find_most_likely_vigenere_key_length(ciphertext)
+	print("Statistical Attack!")
+	print("Key Length: ", key_length)
 	break_cipher_statistical_attack(ciphertext, key_length)
 
 
@@ -95,7 +99,7 @@ def vigenere_stop_breaking() -> None:
 
 
 def break_cipher_brute_force_attack(ciphertext: str, maximum_key_length: int = MAXIMUM_BRUTE_FORCE_KEY_LENGTH) -> None:
-	set_breaking_progress_percentage_denominator(26 ** key_length)
+	set_breaking_progress_percentage_denominator(26 ** maximum_key_length)
 	index = 0
 
 	for key_length in range(maximum_key_length + 1):
@@ -108,15 +112,14 @@ def break_cipher_brute_force_attack(ciphertext: str, maximum_key_length: int = M
 
 			key = ''.join(key_chars)
 			decrypted_text = vigenere_decrypt(ciphertext, key)
-			if not is_probably_english(possible_plaintext):
+			if not is_probably_english(decrypted_text):
 				continue
 			
-			append_to_possible_key_plaintexts(possible_plaintext, key)
+			append_to_possible_key_plaintexts(decrypted_text, key)
 
 
 def break_cipher_dictionary_attack(ciphertext: str) -> None:
 	words = []
-	print(current_app.root_path)
 	with open(current_app.root_path + "/" + WORDS_FILE_PATH, 'r') as words_file:
 		words = words_file.readlines()
 	words_amount = len(words)
@@ -138,19 +141,33 @@ def break_cipher_dictionary_attack(ciphertext: str) -> None:
 
 
 def break_cipher_statistical_attack(ciphertext: str, key_length: int) -> None:
-	def caesar_encrypt(text: str, text_shift: int):
-		pass
-	caesar_shifted_groups: list[str] = divide_ciphertext_into_groups(ciphertext, key_length)
+	def caesar_encrypt(text: str, text_shift: int) -> str:
+		encrypted_text = ""
+
+		for char in text:
+			if char.isalpha():
+				base = ord('A') if char.isupper() else ord('a')
+				shifted = (ord(char) - base + text_shift) % 26 + base
+				encrypted_text += chr(shifted)
+			else:
+				encrypted_text += char
+
+		return encrypted_text
+
+	clean_ciphertext: str = clean_text(ciphertext)
+	caesar_shifted_groups: list[str] = divide_ciphertext_into_groups(clean_ciphertext, key_length)
 	set_breaking_progress_percentage_numerator(0)
 	set_breaking_progress_percentage_denominator(1)
 
 	key_letter: list[str] = []
 
 	for caesar_group in caesar_shifted_groups:
+		print("CAESAR GROUP: ", caesar_group)
 		possible_key: str = "A"
 		lowest_chi_squared_error_test_value: float = sys.float_info.max
 		for letter in string.ascii_uppercase:
-			chi_squared_error_test_value: float = get_chi_squared_error_test(ord(letter) - 65)
+			chi_squared_error_test_value: float = get_chi_squared_error_test(caesar_encrypt(caesar_group, ord(letter) - ord("A")))
+			print(letter, chi_squared_error_test_value)
 			if not chi_squared_error_test_value < lowest_chi_squared_error_test_value:
 				continue
 			lowest_chi_squared_error_test_value = chi_squared_error_test_value

@@ -91,7 +91,7 @@ function closeMoreInformationPopup() {
 function breakVigenere() {
   const data = {
     ciphertext: document.getElementById("breaker-ciphertext-text-area").value,
-	isKeyEnglishWord: document.getElementById("is-key-english").value,
+	isKeyEnglishWord: document.querySelector('#is-key-english').checked,
   };
 
   const progressBarText = document.getElementById("possible-plaintext-prompt-popup-progress-bar");
