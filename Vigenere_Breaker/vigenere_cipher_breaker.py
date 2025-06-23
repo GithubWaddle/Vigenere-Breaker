@@ -1,13 +1,13 @@
 # breaking a vigenere cipher without knowing the key
 
 from flask import current_app
-from .vigenere_cipher import vigenere_encrypt, vigenere_decrypt, clean_text
+from .vigenere_cipher import vigenere_decrypt, clean_text
 from .index_of_coincidence import find_most_likely_vigenere_key_length, divide_ciphertext_into_groups
 from .frequency_analysis import NGramScore, TRIGRAM_FILE_PATH
 import re
 import itertools
 import string
-import sys
+#import sys
 
 from langid.langid import LanguageIdentifier, model
 
@@ -54,7 +54,7 @@ def set_is_breaking(is_breaking: bool)-> None:
 	breaking_tracking["is_breaking"] = is_breaking
 
 
-def normalize_uppercase_text(text):
+def normalize_uppercase_text(text: str) -> str:
 	text = text.lower()
 
 	def capitalize_sentence(match):
@@ -65,7 +65,7 @@ def normalize_uppercase_text(text):
 	return normalized
 
 
-def is_probably_english(text):
+def is_probably_english(text: str) -> bool:
 	language, confidence = identifier.classify(normalize_uppercase_text(text))
 	if confidence > 0.9999999:
 		return True

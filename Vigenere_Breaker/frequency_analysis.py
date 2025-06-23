@@ -1,6 +1,4 @@
 from flask import current_app
-from .vigenere_cipher import clean_text
-from collections import Counter
 from math import log10
 
 TRIGRAM_FILE_PATH: str = "static/english_trigrams.txt"

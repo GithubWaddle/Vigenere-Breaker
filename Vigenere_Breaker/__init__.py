@@ -1,9 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 from .vigenere_cipher_breaker import breaking_tracking, vigenere_start_breaking, vigenere_stop_breaking
 
-MAXIMUM_KEY_LENGTH = 20
-
 app = Flask(__name__)
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -33,4 +32,3 @@ def get_breaking_progress():
 def on_found_plaintext():
 	vigenere_stop_breaking()
 	return jsonify({})
-
