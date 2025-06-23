@@ -6,34 +6,42 @@ def clean_text(text: str) -> str:
 
 
 def vigenere_encrypt(plaintext: str, key: str) -> str:
-    plaintext = clean_text(plaintext)
     key = clean_text(key)
-
-    if not key or not plaintext:
+    if not key:
         return ""
 
-    encoded_text = ""
-    for i, char in enumerate(plaintext):
-        key_char = key[i % len(key)]
-        shift = ord(key_char) - ord('A')
-        encrypted_char = chr(((ord(char) - ord('A') + shift) % 26) + ord('A'))
-        encoded_text += encrypted_char
+    encrypted_text = []
+    key_index = 0
 
-    return encoded_text
+    for char in plaintext:
+        if char.isalpha():
+            shift = ord(key[key_index % len(key)]) - ord('A')
+            base = ord('A') if char.isupper() else ord('a')
+            encrypted_char = chr((ord(char) - base + shift) % 26 + base)
+            encrypted_text.append(encrypted_char)
+            key_index += 1
+        else:
+            encrypted_text.append(char)
+
+    return ''.join(encrypted_text)
 
 
-def vigenere_decrypt(encodedtext: str, key: str) -> str:
-    encodedtext = clean_text(encodedtext)
+def vigenere_decrypt(ciphertext: str, key: str) -> str:
     key = clean_text(key)
-
-    if not key or not encodedtext:
+    if not key:
         return ""
 
-    decoded_text = ""
-    for i, char in enumerate(encodedtext):
-        key_char = key[i % len(key)]
-        shift = ord(key_char) - ord('A')
-        decrypted_char = chr(((ord(char) - ord('A') - shift) % 26) + ord('A'))
-        decoded_text += decrypted_char
+    decrypted_text = []
+    key_index = 0
 
-    return decoded_text
+    for char in ciphertext:
+        if char.isalpha():
+            shift = ord(key[key_index % len(key)]) - ord('A')
+            base = ord('A') if char.isupper() else ord('a')
+            decrypted_char = chr((ord(char) - base - shift) % 26 + base)
+            decrypted_text.append(decrypted_char)
+            key_index += 1
+        else:
+            decrypted_text.append(char)
+
+    return ''.join(decrypted_text)
