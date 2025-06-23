@@ -5,6 +5,7 @@ from .vigenere_cipher import clean_text
 DEFAULT_MAXIMUM_KEY_LENGTH = 20
 ENGLISH_LANGUAGE_INDEX_OF_COINCIDENCE = 0.067
 
+
 def calculate_index_of_coincidence(text: Union[str, bytes]) -> float:
 	if isinstance(text, bytes):
 		text = text.decode('utf-8')
@@ -46,7 +47,6 @@ def find_most_likely_vigenere_key_length(ciphertext: str, maximum_key_length: in
 		average_index_of_coincidence = sum(group_indexes_of_coincidence) / len(group_indexes_of_coincidence)
 		difference_from_english_ic = abs(ENGLISH_LANGUAGE_INDEX_OF_COINCIDENCE - average_index_of_coincidence)
 
-		print(candidate_key_length, average_index_of_coincidence)
 		if difference_from_english_ic < smallest_index_difference:
 			smallest_index_difference = difference_from_english_ic
 			most_likely_key_length = candidate_key_length

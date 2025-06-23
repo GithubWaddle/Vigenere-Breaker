@@ -3,7 +3,7 @@
 from flask import current_app
 from .vigenere_cipher import vigenere_encrypt, vigenere_decrypt, clean_text
 from .index_of_coincidence import find_most_likely_vigenere_key_length, divide_ciphertext_into_groups
-from .frequency_analysis import get_chi_squared_error_test
+from .frequency_analysis import NGramScore, TRIGRAM_FILE_PATH
 import re
 import itertools
 import string
@@ -12,7 +12,7 @@ import sys
 from langid.langid import LanguageIdentifier, model
 
 MAXIMUM_BRUTE_FORCE_KEY_LENGTH: int = 4
-MINIMUM_CIPHERTEXT_LENGTH_FOR_STATISTICAL_ATTACK: int = 50
+MINIMUM_CIPHERTEXT_LENGTH_FOR_STATISTICAL_ATTACK: int = 52
 WORDS_FILE_PATH: str = "./static/WORDS.txt"
 
 breaking_tracking = {
@@ -88,7 +88,7 @@ def vigenere_start_breaking(ciphertext: str, is_key_english_word: bool) -> None:
 		break_cipher_brute_force_attack(ciphertext)
 		return
 
-	key_length = 4#find_most_likely_vigenere_key_length(ciphertext)
+	key_length = find_most_likely_vigenere_key_length(ciphertext)
 	print("Statistical Attack!")
 	print("Key Length: ", key_length)
 	break_cipher_statistical_attack(ciphertext, key_length)
@@ -141,41 +141,86 @@ def break_cipher_dictionary_attack(ciphertext: str) -> None:
 
 
 def break_cipher_statistical_attack(ciphertext: str, key_length: int) -> None:
-	def caesar_encrypt(text: str, text_shift: int) -> str:
-		encrypted_text = ""
+	clean_cipher = clean_text(ciphertext)
+	grouped_ciphertext = divide_ciphertext_into_groups(clean_cipher, key_length)
 
-		for char in text:
-			if char.isalpha():
-				base = ord('A') if char.isupper() else ord('a')
-				shifted = (ord(char) - base + text_shift) % 26 + base
-				encrypted_text += chr(shifted)
-			else:
-				encrypted_text += char
-
-		return encrypted_text
-
-	clean_ciphertext: str = clean_text(ciphertext)
-	caesar_shifted_groups: list[str] = divide_ciphertext_into_groups(clean_ciphertext, key_length)
 	set_breaking_progress_percentage_numerator(0)
 	set_breaking_progress_percentage_denominator(1)
 
-	key_letter: list[str] = []
+	key_characters = []
+	trigram_scorer = NGramScore(TRIGRAM_FILE_PATH)
 
-	for caesar_group in caesar_shifted_groups:
-		print("CAESAR GROUP: ", caesar_group)
-		possible_key: str = "A"
-		lowest_chi_squared_error_test_value: float = sys.float_info.max
+	for group in grouped_ciphertext:
+		best_score = float('-inf')
+		best_letter = 'A'
+
 		for letter in string.ascii_uppercase:
-			chi_squared_error_test_value: float = get_chi_squared_error_test(caesar_encrypt(caesar_group, ord(letter) - ord("A")))
-			print(letter, chi_squared_error_test_value)
-			if not chi_squared_error_test_value < lowest_chi_squared_error_test_value:
-				continue
-			lowest_chi_squared_error_test_value = chi_squared_error_test_value
-			possible_key = letter
-		
-		key_letter.append(possible_key)
+			shift_amount = ord(letter) - ord('A')
+			decrypted_group = caesar_decrypt(group, shift_amount)
+			score = trigram_scorer.score(decrypted_group)
 
+			if score > best_score:
+				best_score = score
+				best_letter = letter
+
+		key_characters.append(best_letter)
 
 	set_breaking_progress_percentage_numerator(1)
-	key = ''.join(key_letter)
-	append_to_possible_key_plaintexts(vigenere_decrypt(ciphertext, key), key)
+
+	guessed_key = ''.join(key_characters)
+	plaintext = vigenere_decrypt(ciphertext, guessed_key)
+	append_to_possible_key_plaintexts(plaintext, guessed_key)
+
+
+def caesar_decrypt(text: str, shift: int) -> str:
+	decrypted_text = ""
+
+	for char in text:
+		if char.isalpha():
+			base = ord('A') if char.isupper() else ord('a')
+			shifted = (ord(char) - base - shift) % 26 + base
+			decrypted_text += chr(shifted)
+		else:
+			decrypted_text += char
+
+	return decrypted_text
+
+
+
+#def break_cipher_statistical_attack(ciphertext: str, key_length: int) -> None:
+#	def caesar_encrypt(text: str, text_shift: int) -> str:
+#		encrypted_text = ""
+#
+#		for char in text:
+#			if char.isalpha():
+#				base = ord('A') if char.isupper() else ord('a')
+#				shifted = (ord(char) - base + text_shift) % 26 + base
+#				encrypted_text += chr(shifted)
+#			else:
+#				encrypted_text += char
+#
+#		return encrypted_text
+#
+#	clean_ciphertext: str = clean_text(ciphertext)
+#	caesar_shifted_groups: list[str] = divide_ciphertext_into_groups(clean_ciphertext, key_length)
+#	set_breaking_progress_percentage_numerator(0)
+#	set_breaking_progress_percentage_denominator(1)
+#
+#	key_letter: list[str] = []
+#
+#	for caesar_group in caesar_shifted_groups:
+#		possible_key: str = "A"
+#		lowest_chi_squared_error_score: float = sys.float_info.max
+#		for letter in string.ascii_uppercase:
+#			chi_squared_error_score: float = get_chi_squared_error_score(caesar_encrypt(caesar_group, ord(letter) - ord("A")))
+#			if not chi_squared_error_score < lowest_chi_squared_error_score:
+#				continue
+#			lowest_chi_squared_error_score = chi_squared_error_score
+#			possible_key = letter
+#		
+#		key_letter.append(possible_key)
+#
+#
+#	set_breaking_progress_percentage_numerator(1)
+#	key = ''.join(key_letter)
+#	append_to_possible_key_plaintexts(vigenere_decrypt(ciphertext, key), key)
